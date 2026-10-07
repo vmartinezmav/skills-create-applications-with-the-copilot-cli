@@ -9,9 +9,30 @@
  *   subtract  (-)  Subtraction:    number1 - number2
  *   multiply  (*)  Multiplication: number1 * number2
  *   divide    (/)  Division:       number1 / number2 (division by zero is an error)
+ *   modulo    (%)  Remainder:      number1 % number2 (modulo by zero is an error)
+ *   power     (^)  Exponentiation: number1 ** number2
+ *   sqrt           Square root:    sqrt number1 (negative input is an error)
  *
  * Example: node src/calculator.js add 2 3   -> 5
  */
+
+function modulo(a, b) {
+  if (b === 0) {
+    throw new Error('Modulo by zero is not allowed.');
+  }
+  return a % b;
+}
+
+function power(base, exponent) {
+  return Math.pow(base, exponent);
+}
+
+function squareRoot(n) {
+  if (n < 0) {
+    throw new Error('Square root of a negative number is not allowed.');
+  }
+  return Math.sqrt(n);
+}
 
 const operations = {
   // Addition
@@ -27,15 +48,24 @@ const operations = {
     }
     return a / b;
   },
+  modulo,
+  power,
+  sqrt: squareRoot,
 };
 
-const aliases = { '+': 'add', '-': 'subtract', '*': 'multiply', x: 'multiply', '/': 'divide' };
+const aliases = { '+': 'add', '-': 'subtract', '*': 'multiply', x: 'multiply', '/': 'divide', '%': 'modulo', '^': 'power' };
 
 function calculate(operation, a, b) {
   const name = aliases[operation] || operation;
   const fn = operations[name];
   if (!fn) {
-    throw new Error(`Unknown operation "${operation}". Use: add, subtract, multiply, divide.`);
+    throw new Error(`Unknown operation "${operation}". Use: add, subtract, multiply, divide, modulo, power, sqrt.`);
+  }
+  if (name === 'sqrt') {
+    if (!Number.isFinite(a)) {
+      throw new Error('Operand must be a valid number.');
+    }
+    return fn(a);
   }
   if (!Number.isFinite(a) || !Number.isFinite(b)) {
     throw new Error('Both operands must be valid numbers.');
@@ -44,8 +74,9 @@ function calculate(operation, a, b) {
 }
 
 function main(argv) {
-  if (argv.length !== 3) {
-    console.error('Usage: node src/calculator.js <add|subtract|multiply|divide> <number1> <number2>');
+  const isSqrt = argv[0] === 'sqrt';
+  if (argv.length !== (isSqrt ? 2 : 3)) {
+    console.error('Usage: node src/calculator.js <add|subtract|multiply|divide|modulo|power> <number1> <number2>\n       node src/calculator.js sqrt <number>');
     process.exit(1);
   }
   const [operation, a, b] = argv;
@@ -61,4 +92,4 @@ if (require.main === module) {
   main(process.argv.slice(2));
 }
 
-module.exports = { calculate };
+module.exports = { calculate, modulo, power, squareRoot };
