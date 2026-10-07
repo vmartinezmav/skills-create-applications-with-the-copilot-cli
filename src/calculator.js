@@ -62,6 +62,7 @@ const aliases = {
   '^': 'power',
   '**': 'power',
   pow: 'power',
+  exponentiation: 'power',
   exponentiate: 'power',
 };
 const unaryOperations = new Set(['sqrt']);
@@ -90,15 +91,15 @@ function calculate(operation, a, b) {
 }
 
 function main(argv) {
-  const operation = normalizeOperation(argv[0]);
-  const expectedLength = unaryOperations.has(operation) ? 2 : 3;
+  const normalizedOperation = normalizeOperation(argv[0]);
+  const expectedLength = unaryOperations.has(normalizedOperation) ? 2 : 3;
   if (argv.length !== expectedLength) {
     console.error('Usage: node src/calculator.js <operation> <number1> [number2]');
     process.exit(1);
   }
   const [operation, a, b] = argv;
   try {
-    console.log(calculate(operation, Number(a), Number(b)));
+    console.log(calculate(operation, Number(a), b === undefined ? undefined : Number(b)));
   } catch (err) {
     console.error(`Error: ${err.message}`);
     process.exit(1);
